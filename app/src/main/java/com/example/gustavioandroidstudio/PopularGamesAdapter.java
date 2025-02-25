@@ -8,6 +8,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +38,12 @@ public class PopularGamesAdapter extends RecyclerView.Adapter<PopularGamesAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Game game = juegosFiltrados.get(position); // Usa la lista filtrada
-        holder.gameTitle.setText(game.getTitle());
-        holder.gameImage.setImageResource(game.getImageResId());
+        holder.gameTitle.setText(game.getName());
+
+        // Cargar la imagen desde la URL usando Glide
+        Glide.with(holder.itemView.getContext())
+                .load(game.getImageUrl()) // Asegúrate de que getImageUrl() devuelva una URL válida
+                .into(holder.gameImage);
 
         holder.itemView.setOnClickListener(v -> onGameClickListener.onGameClick(game));
     }
@@ -68,7 +75,7 @@ public class PopularGamesAdapter extends RecyclerView.Adapter<PopularGamesAdapte
             juegosFiltrados.addAll(juegosOriginales); // Restaura todos los juegos si no hay texto
         } else {
             for (Game game : juegosOriginales) {
-                if (game.getTitle().toLowerCase().contains(texto.toLowerCase())) {
+                if (game.getName().toLowerCase().contains(texto.toLowerCase())) {
                     juegosFiltrados.add(game); // Agrega solo los juegos que coinciden
                 }
             }
