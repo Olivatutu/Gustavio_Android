@@ -24,6 +24,7 @@ public class PaginaPrincipal extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private List<Game> popularGames; // Asegúrate de inicializar esta lista
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +42,11 @@ public class PaginaPrincipal extends AppCompatActivity {
         ImageView profileIcon = findViewById(R.id.profileIcon);
 
         // Configurar el clic del icono del menú
-        menuIcon.setOnClickListener(v -> {
-            // Abrir el menú lateral
-            drawerLayout.openDrawer(navigationView);
-        });
+        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(navigationView));
 
-        // Configurar el clic del icono del perfil
+      /*  // Configurar el clic del icono del perfil
         profileIcon.setOnClickListener(this::goToUserPage);
-
+*/
         // Inicializa el BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -74,24 +72,11 @@ public class PaginaPrincipal extends AppCompatActivity {
             }
         });
 
-        // Inicializa los datos
-        List<Game> popularGames = new ArrayList<>();
-        popularGames.add(new Game("GTA V", R.drawable.gta_v));
-        popularGames.add(new Game("Cyberpunk 2077", R.drawable.cyberpunk));
-        popularGames.add(new Game("Red Dead Redemption 2", R.drawable.red_dead));
-        popularGames.add(new Game("The Witcher 3", R.drawable.witcher_3));
-
         // Configura el RecyclerView
         RecyclerView popularGamesRecycler = findViewById(R.id.popularGamesRecycler);
         popularGamesRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        PopularGamesAdapter popularGamesAdapter = new PopularGamesAdapter(this, popularGames, game ->
-                Toast.makeText(this, "Clicked: " + game.getTitle(), Toast.LENGTH_SHORT).show());
-        popularGamesRecycler.setAdapter(popularGamesAdapter);
-    }
-
-    public void goToUserPage(View view) {
-        Intent intent = new Intent(this, PaginaUsuario.class);
-        startActivity(intent);
+        // Asegúrate de inicializar popularGames con una lista de juegos
+        popularGames = new ArrayList<>(); // Inicializa la lista de juegos
     }
 }

@@ -31,7 +31,7 @@ public class BuscarJuegosActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerBuscar);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Cargar lista de juegos
+        /*// Cargar lista de juegos
         juegos = new ArrayList<>();
         juegos.add(new Game("GTA V", R.drawable.gta_v));
         juegos.add(new Game("Cyberpunk 2077", R.drawable.cyberpunk));
@@ -42,7 +42,7 @@ public class BuscarJuegosActivity extends AppCompatActivity {
             // Acción al hacer clic en un juego
         });
         recyclerView.setAdapter(popularGamesAdapter);
-
+*/
         // Inicializa el BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
