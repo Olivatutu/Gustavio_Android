@@ -20,7 +20,7 @@ import java.util.List;
 
 public class BuscarJuegosActivity extends AppCompatActivity {
     private PopularGamesAdapter popularGamesAdapter;
-    private List<Game> juegos;
+    private List<Game> juegos; // Lista original de juegos
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class BuscarJuegosActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerBuscar);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Cargar lista de juegos (esto podría venir de una API más adelante)
+        // Cargar lista de juegos
         juegos = new ArrayList<>();
         juegos.add(new Game("GTA V", R.drawable.gta_v));
         juegos.add(new Game("Cyberpunk 2077", R.drawable.cyberpunk));
@@ -39,7 +39,7 @@ public class BuscarJuegosActivity extends AppCompatActivity {
         juegos.add(new Game("The Witcher 3", R.drawable.witcher_3));
 
         popularGamesAdapter = new PopularGamesAdapter(this, juegos, game -> {
-            // Acción al hacer clic en un juego (se puede abrir un detalle)
+            // Acción al hacer clic en un juego
         });
         recyclerView.setAdapter(popularGamesAdapter);
 
@@ -50,7 +50,6 @@ public class BuscarJuegosActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.nav_home) {
-                    // Inicia la actividad de la página principal
                     Intent intent = new Intent(BuscarJuegosActivity.this, PaginaPrincipal.class);
                     finish();
                     startActivity(intent);
@@ -67,7 +66,6 @@ public class BuscarJuegosActivity extends AppCompatActivity {
                 return false;
             }
         });
-
 
         edtBuscar.addTextChangedListener(new TextWatcher() {
             @Override

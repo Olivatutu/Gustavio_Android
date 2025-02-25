@@ -14,12 +14,14 @@ import java.util.List;
 public class PopularGamesAdapter extends RecyclerView.Adapter<PopularGamesAdapter.ViewHolder> {
 
     private final Context context;
-    private List<Game> games;
+    private List<Game> juegosOriginales; // Lista original de juegos
+    private List<Game> juegosFiltrados; // Lista que se muestra en el RecyclerView
     private final OnGameClickListener onGameClickListener;
 
-    public PopularGamesAdapter(Context context, List<Game> games, OnGameClickListener listener) {
+    public PopularGamesAdapter(Context context, List<Game> juegos, OnGameClickListener listener) {
         this.context = context;
-        this.games = games;
+        this.juegosOriginales = new ArrayList<>(juegos); // Copia la lista original
+        this.juegosFiltrados = new ArrayList<>(juegos); // Inicializa la lista filtrada
         this.onGameClickListener = listener;
     }
 
@@ -32,16 +34,16 @@ public class PopularGamesAdapter extends RecyclerView.Adapter<PopularGamesAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Game game = games.get(position);
+        Game game = juegosFiltrados.get(position); // Usa la lista filtrada
         holder.gameTitle.setText(game.getTitle());
-        holder.gameImage.setImageResource(game.getImageResId()); // Usa un recurso local para la imagen
+        holder.gameImage.setImageResource(game.getImageResId());
 
         holder.itemView.setOnClickListener(v -> onGameClickListener.onGameClick(game));
     }
 
     @Override
     public int getItemCount() {
-        return games.size();
+        return juegosFiltrados.size(); // Devuelve el tamaño de la lista filtrada
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -60,14 +62,17 @@ public class PopularGamesAdapter extends RecyclerView.Adapter<PopularGamesAdapte
     }
 
     public void filtrar(String texto) {
-        List<Game> juegosFiltrados = new ArrayList<>();
-        for (Game game : games) {
-            if (game.getTitle().toLowerCase().contains(texto.toLowerCase())) {
-                juegosFiltrados.add(game);
+        juegosFiltrados.clear(); // Limpia la lista filtrada
+
+        if (texto.isEmpty()) {
+            juegosFiltrados.addAll(juegosOriginales); // Restaura todos los juegos si no hay texto
+        } else {
+            for (Game game : juegosOriginales) {
+                if (game.getTitle().toLowerCase().contains(texto.toLowerCase())) {
+                    juegosFiltrados.add(game); // Agrega solo los juegos que coinciden
+                }
             }
         }
-        this.games.clear();
-        this.games.addAll(juegosFiltrados);
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // Notifica que los datos han cambiado
     }
 }
