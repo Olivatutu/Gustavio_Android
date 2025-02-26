@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.EditText;
 
@@ -13,14 +14,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gustavioandroidstudio.adapters.GameAdapter;
+
+import com.example.gustavioandroidstudio.api.ApiClient;
+import com.example.gustavioandroidstudio.api.ApiService;
+import com.example.gustavioandroidstudio.api.Game;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
 public class BuscarJuegosActivity extends AppCompatActivity {
     private PopularGamesAdapter popularGamesAdapter;
     private List<Game> juegos; // Lista original de juegos
+    private ApiService apiService;
+    private GameAdapter gameAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,21 +41,56 @@ public class BuscarJuegosActivity extends AppCompatActivity {
         setContentView(R.layout.activity_buscar_juegos);
 
         EditText edtBuscar = findViewById(R.id.edtBuscar);
-        RecyclerView recyclerView = findViewById(R.id.recyclerBuscar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        /*// Cargar lista de juegos
+        // Configurar el RecyclerView
+        RecyclerView juegosRecyclerView = findViewById(R.id.popularGamesRecycler);
+        juegosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        // Inicializa la lista de juegos
         juegos = new ArrayList<>();
-        juegos.add(new Game("GTA V", R.drawable.gta_v));
-        juegos.add(new Game("Cyberpunk 2077", R.drawable.cyberpunk));
-        juegos.add(new Game("Red Dead Redemption 2", R.drawable.red_dead));
-        juegos.add(new Game("The Witcher 3", R.drawable.witcher_3));
 
+        // Crea el adaptador para RecyclerView
         popularGamesAdapter = new PopularGamesAdapter(this, juegos, game -> {
-            // Acción al hacer clic en un juego
+            // Acción al hacer clic en un juego
+
+
+        // Inicializar Retrofit
+        Retrofit retrofit = ApiClient.getClient();
+        apiService = retrofit.create(ApiService.class);
+
+        // Llamada a la API
+        apiService.getVideojuegos().enqueue(new Callback<Game>() {
+            @Override
+            public void onResponse(Call<Game> call, Response<Game> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Game.Juegos> juegosList = response.body().getJuegos(); // Obtener la lista de juegos
+
+                    for (Game.Juegos juego : juegosList) {
+                        Log.d("API_RESPONSE", "ID: " + juego.getId() +
+                                ", Nombre: " + juego.getName() +
+                                ", Descripción: " + juego.getDescription() +
+                                ", Desarrollador: " + juego.getDesarrollador() +
+                                ", Género: " + juego.getGenero() +
+                                ", Fecha de lanzamiento: " + juego.getReleaseDate() +
+                                ", Imagen: " + juego.getImageUrl());
+                    }
+
+                    // Configurar el adaptador con la lista de juegos
+                    gameAdapter = new GameAdapter(BuscarJuegosActivity.this, juegosList, game -> {
+                        // Acción al hacer clic en un juego (opcional)
+                    });
+                    juegosRecyclerView.setAdapter(gameAdapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Game> call, Throwable t) {
+                Log.e("API_ERROR", "Error al obtener datos", t);
+            }
+            });
+
         });
-        recyclerView.setAdapter(popularGamesAdapter);
-*/
+
         // Inicializa el BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

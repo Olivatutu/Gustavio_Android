@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gustavioandroidstudio.api.Game;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.view.MenuItem;

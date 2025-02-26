@@ -2,81 +2,85 @@ package com.example.gustavioandroidstudio;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gustavioandroidstudio.adapters.GameAdapter;
+import com.example.gustavioandroidstudio.api.ApiClient;
+import com.example.gustavioandroidstudio.api.ApiService;
+import com.example.gustavioandroidstudio.api.Game;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
 import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class PaginaPrincipal extends AppCompatActivity {
-
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private List<Game> popularGames; // Asegúrate de inicializar esta lista
+    private ApiService apiService;
+    private GameAdapter gameAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pagina_principal);
 
-        // Inicializa el Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // Configurar el RecyclerView
+        RecyclerView juegosRecyclerView = findViewById(R.id.popularGamesRecycler);
+        juegosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-        // Obtener referencias a los elementos
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.navigation_view);
-        ImageView menuIcon = findViewById(R.id.menuIcon);
-        ImageView profileIcon = findViewById(R.id.profileIcon);
+        // Inicializar Retrofit
+        Retrofit retrofit = ApiClient.getClient();
+        apiService = retrofit.create(ApiService.class);
 
-        // Configurar el clic del icono del menú
-        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(navigationView));
-
-      /*  // Configurar el clic del icono del perfil
-        profileIcon.setOnClickListener(this::goToUserPage);
-*/
-        // Inicializa el BottomNavigationView
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        // Llamada a la API
+        apiService.getVideojuegos().enqueue(new Callback<Game>() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.nav_home) {
-                    // Inicia la actividad de la página principal
-                    Intent intent = new Intent(PaginaPrincipal.this, PaginaPrincipal.class);
-                    finish();
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.nav_search) {
-                    Intent intent = new Intent(PaginaPrincipal.this, BuscarJuegosActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.nav_profile) {
-                    Intent intent = new Intent(PaginaPrincipal.this, PaginaUsuario.class);
-                    startActivity(intent);
-                    return true;
+            public void onResponse(Call<Game> call, Response<Game> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Game.Juegos> juegosList = response.body().getJuegos(); // Obtener la lista de juegos
+
+                    for (Game.Juegos juego : juegosList) {
+                        Log.d("API_RESPONSE", "ID: " + juego.getId() +
+                                ", Nombre: " + juego.getName() +
+                                ", Descripción: " + juego.getDescription() +
+                                ", Desarrollador: " + juego.getDesarrollador() +
+                                ", Género: " + juego.getGenero() +
+                                ", Fecha de lanzamiento: " + juego.getReleaseDate() +
+                                ", Imagen: " + juego.getImageUrl());
+                    }
+
+                    // Configurar el adaptador con la lista de juegos
+                    gameAdapter = new GameAdapter(PaginaPrincipal.this, juegosList, game -> {
+                        // Acción al hacer clic en un juego (opcional)
+                    });
+                    juegosRecyclerView.setAdapter(gameAdapter);
                 }
-                return false;
+            }
+
+            @Override
+            public void onFailure(Call<Game> call, Throwable t) {
+                Log.e("API_ERROR", "Error al obtener datos", t);
             }
         });
 
-        // Configura el RecyclerView
-        RecyclerView popularGamesRecycler = findViewById(R.id.popularGamesRecycler);
-        popularGamesRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        // Asegúrate de inicializar popularGames con una lista de juegos
-        popularGames = new ArrayList<>(); // Inicializa la lista de juegos
+        // Inicializa el BottomNavigationView
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                return true;
+            } else if (itemId == R.id.nav_search) {
+                startActivity(new Intent(PaginaPrincipal.this, BuscarJuegosActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(PaginaPrincipal.this, PaginaUsuario.class));
+                return true;
+            }
+            return false;
+        });
     }
 }
