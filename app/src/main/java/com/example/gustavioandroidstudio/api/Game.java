@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Game {
     @SerializedName("juegos")
-    public List<Juegos> juegos = new ArrayList<>();
+    private List<Juegos> juegos = new ArrayList<>();
 
     public List<Juegos> getJuegos() {
         return juegos;
